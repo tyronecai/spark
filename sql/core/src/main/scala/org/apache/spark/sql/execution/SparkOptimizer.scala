@@ -15,27 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.spark.streaming.dstream
+package org.apache.spark.sql.execution
 
-import scala.reflect.ClassTag
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.catalyst.optimizer._
 
-import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.{StreamingContext, Time}
-
-/**
- * An input stream that always returns the same RDD on each timestep. Useful for testing.
- */
-class ConstantInputDStream[T: ClassTag](_ssc: StreamingContext, rdd: RDD[T])
-  extends InputDStream[T](_ssc) {
-
-  require(rdd != null,
-    "parameter rdd null is illegal, which will lead to NPE in the following transformation")
-
-  override def start() {}
-
-  override def stop() {}
-
-  override def compute(validTime: Time): Option[RDD[T]] = {
-    Some(rdd)
-  }
+class SparkOptimizer(val sqlContext: SQLContext)
+    extends Optimizer {
+      override def batches: Seq[Batch] = super.batches :+ Batch(
+        "User Provided Optimizers", FixedPoint(100), sqlContext.experimental.extraOptimizations: _*)
 }
