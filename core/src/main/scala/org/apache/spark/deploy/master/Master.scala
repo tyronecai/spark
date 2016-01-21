@@ -238,7 +238,7 @@ private[deploy] class Master(
 
     case RevokedLeadership => {
       logError("Leadership has been revoked -- master shutting down.")
-      System.exit(0)
+      System.exit(1)
     }
 
     case RegisterApplication(description, driver) => {
